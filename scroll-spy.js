@@ -1,36 +1,21 @@
-/**
- * ScrollSpy (Optimized)
- *
- * 역할 분담
- * HTML  : 기본 마크업 구조 (태그, 클래스, 텍스트)
- * JS    : data-* / aria-* 속성 동적 주입, 동작 제어 및 위치 캐싱
- *
- * 라이프사이클
- * createScrollSpy() → init() → _mount()
- * → _setupData() → _setupA11y() → _bindEvents() → _measureAll() → _startScroll()
- * → destroy()
- */
-
 function createScrollSpy(options = {}) {
-  /* ═══════════════════════════════════════════
-     OPTIONS
-  ═══════════════════════════════════════════ */
   const opt = {
     headerSelector: options.headerSelector || null,
     headerHeight: options.headerHeight !== undefined ? options.headerHeight : null,
     tabBarSelector: options.tabBarSelector || '[data-role="tabbar"]',
     tabSelector: options.tabSelector || '[data-role="tab"]',
     sectionSelector: options.sectionSelector || '[data-role="section"]',
+    containerSelector: options.containerSelector || null,
     activeClass: options.activeClass || "is-active",
     fixedClass: options.fixedClass || "is-fixed",
+    hiddenClass: options.hiddenClass || "is-hidden",
     scrollOffset: options.scrollOffset || 0,
     tabBarAriaLabel: options.tabBarAriaLabel || "섹션 탐색",
+    hideTabBarOutsideContainer:
+      options.hideTabBarOutsideContainer !== undefined ? options.hideTabBarOutsideContainer : false,
     onTabChange: options.onTabChange || null,
   };
 
-  /* ═══════════════════════════════════════════
-     STATE
-  ═══════════════════════════════════════════ */
   let _header = null;
   let _headerHeight = 0;
   let _headerObserver = null;
@@ -38,16 +23,20 @@ function createScrollSpy(options = {}) {
   let _tabs = [];
   let _sections = [];
 
+  let _container = null;
+  let _containerTop = 0;
+  let _containerBottom = 0;
+
   let _tabBarHeight = 0;
   let _originalTop = null;
-  let _sectionBounds = []; // [Optimization] 위치 캐싱 배열
+  let _sectionBounds = [];
 
   let _isMounted = false;
   let _liveRegion = null;
 
   let _onScrollHandler = null;
   let _onResizeHandler = null;
-  let _scrollRafId = null; // [Optimization] requestAnimationFrame ID
+  let _scrollRafId = null;
 
   let _isProgrammaticScroll = false;
   let _scrollEndTimer = null;
@@ -55,9 +44,6 @@ function createScrollSpy(options = {}) {
 
   let _reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ═══════════════════════════════════════════
-     LIFECYCLE — init
-  ═══════════════════════════════════════════ */
   function init() {
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", _mount, { once: true });
@@ -67,9 +53,6 @@ function createScrollSpy(options = {}) {
     return api;
   }
 
-  /* ═══════════════════════════════════════════
-     LIFECYCLE — mount
-  ═══════════════════════════════════════════ */
   function _mount() {
     if (opt.headerSelector && opt.headerHeight === null) {
       _header = document.querySelector(opt.headerSelector);
@@ -83,20 +66,22 @@ function createScrollSpy(options = {}) {
       return;
     }
 
+    _container = opt.containerSelector
+      ? document.querySelector(opt.containerSelector)
+      : _sections[0]
+        ? _sections[0].parentElement
+        : null;
+
     _setupData();
     _setupA11y();
     _bindEvents();
 
-    // [Optimization] 모든 크기/위치 측정을 한 번에 실행
     _measureAll();
     _startScroll();
 
     _isMounted = true;
   }
 
-  /* ═══════════════════════════════════════════
-     DATA SETUP
-  ═══════════════════════════════════════════ */
   function _setupData() {
     _tabs.forEach((tab, i) => {
       if (!tab.dataset.label) tab.dataset.label = `section-${i}`;
@@ -106,9 +91,6 @@ function createScrollSpy(options = {}) {
     });
   }
 
-  /* ════════════════════════════════════════════════════════
-     ── A11Y : SETUP & TEARDOWN ──
-  ════════════════════════════════════════════════════════ */
   function _setupA11y() {
     _tabBar.setAttribute("role", "tablist");
     _tabBar.setAttribute("aria-label", opt.tabBarAriaLabel);
@@ -121,7 +103,6 @@ function createScrollSpy(options = {}) {
 
     _a11y_setupLiveRegion();
 
-    // prefers-reduced-motion 이벤트 분리 (메모리 누수 방지)
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     _reducedMotion = mediaQuery.matches;
     mediaQuery.addEventListener("change", _onReducedMotionChange);
@@ -151,9 +132,7 @@ function createScrollSpy(options = {}) {
   }
 
   function _a11y_updateSelected(activeTab) {
-    _tabs.forEach((tab) => {
-      tab.setAttribute("aria-selected", String(tab === activeTab));
-    });
+    _tabs.forEach((tab) => tab.setAttribute("aria-selected", String(tab === activeTab)));
   }
 
   function _a11y_announce(activeTab) {
@@ -198,20 +177,14 @@ function createScrollSpy(options = {}) {
       _liveRegion.parentNode.removeChild(_liveRegion);
       _liveRegion = null;
     }
-
     window.matchMedia("(prefers-reduced-motion: reduce)").removeEventListener("change", _onReducedMotionChange);
   }
 
-  /* ═══════════════════════════════════════════
-     EVENTS
-  ═══════════════════════════════════════════ */
   function _bindEvents() {
     _tabs.forEach((tab) => _bindTabClick(tab));
 
-    // [Optimization] requestAnimationFrame으로 감싼 스크롤 이벤트
     _onScrollHandler = _onScroll;
     window.addEventListener("scroll", _onScrollHandler, { passive: true });
-
     _onResizeHandler = _debounce(_onResize, 200);
     window.addEventListener("resize", _onResizeHandler, { passive: true });
 
@@ -221,7 +194,6 @@ function createScrollSpy(options = {}) {
     }
   }
 
-  // [Optimization] 삭제 시 이벤트 리스너를 해제할 수 있도록 네임드 함수 매핑 유지
   function _bindTabClick(tab) {
     tab._scrollSpyClickHandler = () => _onTabClick(tab);
     tab.addEventListener("click", tab._scrollSpyClickHandler);
@@ -241,9 +213,6 @@ function createScrollSpy(options = {}) {
     _scrollToSection(section);
   }
 
-  /* ═══════════════════════════════════════════
-     SCROLL 처리
-  ═══════════════════════════════════════════ */
   function _startScroll() {
     _updateFixed();
     _updateActiveByScroll();
@@ -263,17 +232,15 @@ function createScrollSpy(options = {}) {
     const threshold = scrollY + _headerHeight + _tabBarHeight + opt.scrollOffset;
     let active = null;
 
-    // [Optimization] 미리 캐싱된 위치 데이터를 기반으로 판단 (DOM 접근 배제)
     for (let i = 0; i < _sectionBounds.length; i++) {
       const bound = _sectionBounds[i];
       if (bound.top <= threshold) {
         active = bound;
       } else {
-        break; // 섹션이 순차적이라는 가정 하에 조기 종료
+        break;
       }
     }
 
-    // 활성 후보 섹션의 bottom을 지나쳤는지 확인
     if (active && active.bottom < threshold) {
       active = null;
     }
@@ -295,8 +262,22 @@ function createScrollSpy(options = {}) {
   function _updateFixed() {
     if (_originalTop === null) return;
 
+    const scrollY = window.scrollY;
     const fixThreshold = _originalTop - _headerHeight;
-    const shouldFix = window.scrollY >= fixThreshold;
+    const shouldFix = scrollY >= fixThreshold;
+
+    // ⭐ [수정된 부분] 상단 이탈 체크 로직 제거, 하단 이탈만 체크
+    if (opt.hideTabBarOutsideContainer && _container) {
+      // 컨테이너 최하단을 완전히 벗어났을 때만 감지
+      const boundaryBottom = _containerBottom - _headerHeight - _tabBarHeight;
+
+      if (shouldFix && scrollY > boundaryBottom) {
+        _tabBar.classList.add(opt.hiddenClass);
+      } else {
+        _tabBar.classList.remove(opt.hiddenClass);
+      }
+    }
+
     const isFixed = _tabBar.classList.contains(opt.fixedClass);
     if (shouldFix === isFixed) return;
 
@@ -309,9 +290,6 @@ function createScrollSpy(options = {}) {
     }
   }
 
-  /* ═══════════════════════════════════════════
-     TAB ACTIVATE
-  ═══════════════════════════════════════════ */
   function _activateTab(tab) {
     if (tab === _currentActiveTab) return;
     _currentActiveTab = tab;
@@ -326,15 +304,11 @@ function createScrollSpy(options = {}) {
     }
   }
 
-  /* ═══════════════════════════════════════════
-     SCROLL TO SECTION
-  ═══════════════════════════════════════════ */
   function _scrollToSection(section) {
     const top = section.getBoundingClientRect().top + window.scrollY - _headerHeight - _tabBarHeight - opt.scrollOffset;
 
     _isProgrammaticScroll = true;
     clearTimeout(_scrollEndTimer);
-
     window.scrollTo({ top: top, behavior: _reducedMotion ? "auto" : "smooth" });
 
     let lastY = window.scrollY;
@@ -351,13 +325,18 @@ function createScrollSpy(options = {}) {
     waitScrollEnd();
   }
 
-  /* ═══════════════════════════════════════════
-     MEASUREMENTS (캐싱)
-  ═══════════════════════════════════════════ */
   function _measureAll() {
     _measureHeader();
     _measureTabBar();
-    _measureSections(); // 레이아웃 스래싱 방지를 위한 위치 미리 계산
+    _measureContainer();
+    _measureSections();
+  }
+
+  function _measureContainer() {
+    if (!_container) return;
+    const rect = _container.getBoundingClientRect();
+    _containerTop = rect.top + window.scrollY;
+    _containerBottom = rect.bottom + window.scrollY;
   }
 
   function _measureHeader() {
@@ -378,13 +357,11 @@ function createScrollSpy(options = {}) {
     _originalTop = Math.round(_tabBar.getBoundingClientRect().top + window.scrollY);
 
     if (wasFixed) _tabBar.classList.add(opt.fixedClass);
-
     document.documentElement.style.setProperty("--tabbar-height", `${_tabBarHeight}px`);
   }
 
   function _measureSections() {
     _sectionBounds = _sections.map((section) => {
-      // offsetTop 대신 getBoundingClientRect 사용으로 중첩 구조에서도 정확한 절대 좌표 계산
       const top = section.getBoundingClientRect().top + window.scrollY;
       return {
         section,
@@ -398,33 +375,23 @@ function createScrollSpy(options = {}) {
   function _onResize() {
     _measureAll();
   }
-
   function _scrollTabIntoView(tab) {
     if (!tab) return;
     tab.scrollIntoView({ inline: "nearest", block: "nearest", behavior: _reducedMotion ? "auto" : "smooth" });
   }
 
-  /* ═══════════════════════════════════════════
-     PUBLIC API
-  ═══════════════════════════════════════════ */
   function addTab(tabEl, sectionEl) {
-    if (!_isMounted) {
-      console.warn("[ScrollSpy] init() 이후에 사용하세요.");
-      return;
-    }
-
+    if (!_isMounted) return;
     if (!tabEl.dataset.label) tabEl.dataset.label = `section-${_tabs.length}`;
     if (sectionEl && !sectionEl.dataset.label) sectionEl.dataset.label = tabEl.dataset.label;
 
     _bindTabClick(tabEl);
-
     _a11y_attachTab(tabEl);
     if (sectionEl) _a11y_attachSection(sectionEl, tabEl);
 
     _tabs.push(tabEl);
     if (sectionEl) _sections.push(sectionEl);
 
-    // [Optimization] DOM이 추가되었으므로 위치 및 사이즈 재계산
     _measureAll();
   }
 
@@ -436,13 +403,11 @@ function createScrollSpy(options = {}) {
     if (tab) {
       const tabAttrs = ["role", "aria-selected", "tabindex", "aria-controls", "id"];
       _a11y_detach(tab, tabAttrs);
-      _unbindTabClick(tab); // [Optimization] 리스너 정상 해제
-
+      _unbindTabClick(tab);
       _tabs.splice(_tabs.indexOf(tab), 1);
       if (tab.parentNode) tab.parentNode.removeChild(tab);
       if (tab === _currentActiveTab) _currentActiveTab = null;
     }
-
     if (sec) {
       const sectionAttrs = ["role", "aria-labelledby", "id"];
       _a11y_detach(sec, sectionAttrs);
@@ -450,7 +415,6 @@ function createScrollSpy(options = {}) {
       if (sec.parentNode) sec.parentNode.removeChild(sec);
     }
 
-    // [Optimization] DOM이 삭제되었으므로 위치 재계산
     _measureAll();
   }
 
@@ -463,10 +427,11 @@ function createScrollSpy(options = {}) {
     clearTimeout(_scrollEndTimer);
     if (_scrollRafId) cancelAnimationFrame(_scrollRafId);
 
-    _tabs.forEach((tab) => _unbindTabClick(tab)); // [Optimization] 모든 탭 리스너 해제
-
+    _tabs.forEach((tab) => _unbindTabClick(tab));
     _a11y_teardown();
+
     _tabBar.classList.remove(opt.fixedClass);
+    _tabBar.classList.remove(opt.hiddenClass);
 
     _isMounted = false;
     _tabs = [];
@@ -474,13 +439,11 @@ function createScrollSpy(options = {}) {
     _sectionBounds = [];
     _header = null;
     _tabBar = null;
+    _container = null;
     _originalTop = null;
     _currentActiveTab = null;
   }
 
-  /* ═══════════════════════════════════════════
-     UTILS
-  ═══════════════════════════════════════════ */
   function _getTabByLabel(label) {
     return _tabs.find((tab) => tab.dataset.label === label) || null;
   }
