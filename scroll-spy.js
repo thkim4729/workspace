@@ -131,8 +131,8 @@ function createScrollSpy(options = {}) {
       const label = tab.dataset.label;
       tab.setAttribute("role", "tab");
       tab.setAttribute("aria-selected", "false"); // 초기에는 어떤 탭도 선택되지 않음
+      tab.id = `scrollspy-tab-${label}`;
       tab.setAttribute("aria-controls", `scrollspy-panel-${label}`);
-      if (!tab.id) tab.id = `scrollspy-tab-${label}`;
     });
   }
 
@@ -143,7 +143,7 @@ function createScrollSpy(options = {}) {
       // 섹션에는 tabpanel 역할만 부여, tabindex 없음 (포커싱 불필요)
       section.setAttribute("role", "tabpanel");
       section.setAttribute("aria-labelledby", tab ? tab.id : "");
-      if (!section.id) section.id = `scrollspy-panel-${label}`;
+      section.id = `scrollspy-panel-${label}`;
     });
   }
 
@@ -191,18 +191,18 @@ function createScrollSpy(options = {}) {
     const label = tab.dataset.label;
     tab.setAttribute("role", "tab");
     tab.setAttribute("aria-selected", "false");
+    tab.id = `scrollspy-tab-${label}`;
     tab.setAttribute("aria-controls", `scrollspy-panel-${label}`);
-    if (!tab.id) tab.id = `scrollspy-tab-${label}`;
     if (section) {
       section.setAttribute("role", "tabpanel");
       section.setAttribute("aria-labelledby", tab.id);
-      if (!section.id) section.id = `scrollspy-panel-${label}`;
+      section.id = `scrollspy-panel-${label}`;
     }
   }
 
   function _a11y_detachTab(tab, section) {
-    const tabAttrs = ["role", "aria-selected", "tabindex", "aria-controls"];
-    const sectionAttrs = ["role", "aria-labelledby"];
+    const tabAttrs = ["role", "aria-selected", "tabindex", "aria-controls", "id"];
+    const sectionAttrs = ["role", "aria-labelledby", "id"];
     tabAttrs.forEach((attr) => tab.removeAttribute(attr));
     if (section) sectionAttrs.forEach((attr) => section.removeAttribute(attr));
   }
@@ -210,9 +210,9 @@ function createScrollSpy(options = {}) {
   function _a11y_teardown() {
     _tabBar.removeAttribute("role");
     _tabBar.removeAttribute("aria-label");
-    const tabAttrs = ["role", "aria-selected", "tabindex", "aria-controls"];
+    const tabAttrs = ["role", "aria-selected", "tabindex", "aria-controls", "id"];
     _tabs.forEach((tab) => tabAttrs.forEach((attr) => tab.removeAttribute(attr)));
-    const sectionAttrs = ["role", "aria-labelledby"];
+    const sectionAttrs = ["role", "aria-labelledby", "id"];
     _sections.forEach((section) => sectionAttrs.forEach((attr) => section.removeAttribute(attr)));
     if (_liveRegion && _liveRegion.parentNode) {
       _liveRegion.parentNode.removeChild(_liveRegion);
