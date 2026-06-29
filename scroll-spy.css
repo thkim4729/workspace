@@ -34,16 +34,11 @@ body {
   color: #666;
 }
 
-[data-role="tabbar"] {
-  display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
+/* 탭바의 배경, z-index 등 컨테이너 역할을 하는 wrapper 스타일 */
+.tabbar-wrapper {
   background: #fff;
   border-bottom: 0.5px solid #e0e0e0;
   z-index: 100;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-
   /* 애니메이션 및 하드웨어 가속 최적화 */
   transition:
     transform 0.3s ease,
@@ -51,17 +46,32 @@ body {
   will-change: transform;
   transform: translateZ(0);
 }
+
+[data-role="tabbar"] {
+  /* ul 태그로 변경됨에 따라 리스트 기본 스타일 제거 */
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
 [data-role="tabbar"]::-webkit-scrollbar {
   display: none;
 }
-[data-role="tabbar"].is-fixed {
+
+/* JS가 wrapper에 is-fixed 클래스를 부여합니다. */
+.tabbar-wrapper.is-fixed {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
 }
-[data-role="tabbar"].is-hidden {
+.tabbar-wrapper.is-hidden {
   opacity: 0;
   pointer-events: none;
   /* GPU 가속을 유지하면서 Y축 이동 */
@@ -71,7 +81,8 @@ body {
 .tabbar-placeholder {
   height: 0;
 }
-[data-role="tabbar"].is-fixed ~ .tabbar-placeholder {
+/* is-fixed가 적용된 wrapper의 다음 형제(placeholder)의 높이를 설정합니다. */
+.tabbar-wrapper.is-fixed + .tabbar-placeholder {
   height: var(--tabbar-height, 49px);
 }
 
@@ -94,7 +105,7 @@ body {
 [data-role="tab"]:hover {
   color: #333;
 }
-[data-role="tab"].is-active {
+li.is-active > [data-role="tab"] {
   color: #4f46e5;
   border-bottom-color: #4f46e5;
   font-weight: 600;
