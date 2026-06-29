@@ -231,6 +231,7 @@
     <script src="scroll-spy.js"></script>
     <script>
       createScrollSpy({
+        // headerSelector: '.hero', // 헤더 높이가 유동적일 때 사용 (ResizeObserver로 동적 높이 감지)
         headerHeight: 48,
         containerSelector: '[data-role="section-container"]',
         hideTabBarOutsideContainer: false,
