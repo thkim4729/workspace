@@ -30,6 +30,7 @@ function createScrollSpy(options = {}) {
     behavior: {
       hideOutside: options.hideTabBarOutsideContainer !== undefined ? options.hideTabBarOutsideContainer : false,
       throttleMs: options.throttleMs || 50,
+      centerActiveTab: options.centerActiveTab !== undefined ? options.centerActiveTab : false,
     },
     a11y: {
       tabBarLabel: options.tabBarAriaLabel || "섹션 탐색",
@@ -161,8 +162,15 @@ function createScrollSpy(options = {}) {
     dom.sections = Array.from(document.querySelectorAll(config.selectors.section));
 
     if (!dom.tabBar || !dom.tabs.length || !dom.sections.length) {
-      console.warn("[ScrollSpy] 필수 요소를 찾을 수 없습니다. HTML 마크업을 확인하세요.");
+      console.warn("[ScrollSpy] 필수 요소(탭바, 탭, 섹션)를 찾을 수 없어 스크립트 실행을 중단합니다.");
       return;
+    }
+
+    // 탭과 섹션의 개수가 다를 경우 경고 메시지 출력
+    if (dom.tabs.length !== dom.sections.length) {
+      console.warn(
+        `[ScrollSpy] 경고: 탭(${dom.tabs.length}개)과 섹션(${dom.sections.length}개)의 수가 일치하지 않습니다. 의도치 않은 동작이 발생할 수 있습니다.`,
+      );
     }
 
     // 컨테이너가 지정되지 않았다면 첫 번째 섹션의 부모를 기본 컨테이너로 사용
@@ -348,12 +356,22 @@ function createScrollSpy(options = {}) {
     A11y.updateSelected(dom.tabs, tab);
     A11y.announce(dom.liveRegion, tab);
 
-    if (tab) {
-      // 탭(버튼)을 감싸는 li 요소가 있을 경우, li를 스크롤 대상으로 하여 아이템 전체가 보이도록 처리
-      const scrollTarget = tab.parentElement && tab.parentElement.tagName === "LI" ? tab.parentElement : tab;
-      scrollTarget.scrollIntoView({
-        inline: "nearest",
-        block: "nearest",
+    // 옵션이 활성화된 경우, 활성 탭을 탭바의 중앙으로 부드럽게 스크롤합니다.
+    if (tab && config.behavior.centerActiveTab) {
+      const parentLi = tab.parentElement;
+      const scrollTarget =
+        parentLi && parentLi.tagName === "LI" && parentLi.parentElement === dom.tabBar ? parentLi : tab;
+
+      const tabBar = dom.tabBar;
+      const targetRect = scrollTarget.getBoundingClientRect();
+      const tabBarRect = tabBar.getBoundingClientRect();
+
+      // 타겟의 중앙과 탭바의 중앙 사이의 거리를 계산하여 스크롤 위치를 조정합니다.
+      const scrollLeft =
+        tabBar.scrollLeft + (targetRect.left + targetRect.width / 2) - (tabBarRect.left + tabBarRect.width / 2);
+
+      tabBar.scrollTo({
+        left: scrollLeft,
         behavior: state.reducedMotion ? "auto" : "smooth",
       });
     }
