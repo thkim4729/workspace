@@ -16,6 +16,7 @@ function createScrollSpy(options = {}) {
       tabBar: options.tabBarSelector || '[data-role="tabbar"]',
       tab: options.tabSelector || '[data-role="tab"]',
       section: options.sectionSelector || '[data-role="section"]',
+      scrollContext: options.scrollContextSelector || null,
       container: options.containerSelector || null,
     },
     classes: {
@@ -48,6 +49,7 @@ function createScrollSpy(options = {}) {
     tabBar: null,
     tabBarWrapper: null,
     container: null,
+    scrollContext: window, // 스크롤 이벤트를 감지할 요소 (기본값: window)
     tabs: [],
     sections: [],
     liveRegion: null,
@@ -157,6 +159,15 @@ function createScrollSpy(options = {}) {
       dom.header = document.querySelector(config.selectors.header);
     }
 
+    // 스크롤 컨텍스트 설정
+    if (config.selectors.scrollContext) {
+      dom.scrollContext = document.querySelector(config.selectors.scrollContext);
+      if (!dom.scrollContext) {
+        console.warn(`[ScrollSpy] Scroll context "${config.selectors.scrollContext}" not found. Defaulting to window.`);
+        dom.scrollContext = window;
+      }
+    }
+
     dom.tabBar = document.querySelector(config.selectors.tabBar);
     dom.tabs = Array.from(document.querySelectorAll(config.selectors.tab));
     dom.sections = Array.from(document.querySelectorAll(config.selectors.section));
@@ -246,7 +257,7 @@ function createScrollSpy(options = {}) {
         refs.scrollRafId = null;
       });
     };
-    window.addEventListener("scroll", refs.onScroll, { passive: true });
+    dom.scrollContext.addEventListener("scroll", refs.onScroll, { passive: true });
 
     refs.onResize = _debounce(measureAll, 200);
     window.addEventListener("resize", refs.onResize, { passive: true });
@@ -285,7 +296,7 @@ function createScrollSpy(options = {}) {
   function _updateFixedState() {
     if (state.originalTop === null) return;
 
-    const scrollY = window.scrollY;
+    const scrollY = _getScrollTop();
     const fixThreshold = state.originalTop - state.headerHeight;
     const shouldFix = scrollY >= fixThreshold;
 
@@ -314,7 +325,7 @@ function createScrollSpy(options = {}) {
   }
 
   function _updateActiveSection() {
-    const scrollY = window.scrollY;
+    const scrollY = _getScrollTop();
     const threshold = scrollY + state.headerHeight + state.tabBarHeight + config.layout.scrollOffset;
     let activeBound = null;
 
@@ -383,25 +394,21 @@ function createScrollSpy(options = {}) {
   }
 
   function _scrollToSection(section) {
-    const top =
-      section.getBoundingClientRect().top +
-      window.scrollY -
-      state.headerHeight -
-      state.tabBarHeight -
-      config.layout.scrollOffset;
+    const top = _getElementTop(section) - state.headerHeight - state.tabBarHeight - config.layout.scrollOffset;
 
     state.isProgrammaticScroll = true;
     clearTimeout(refs.scrollEndTimer);
-    window.scrollTo({ top: top, behavior: state.reducedMotion ? "auto" : "smooth" });
+    _scrollTo(top);
 
     // 스크롤 종료 감지
-    let lastY = window.scrollY;
+    let lastY = _getScrollTop();
     function waitScrollEnd() {
       refs.scrollEndTimer = setTimeout(() => {
-        if (Math.abs(window.scrollY - lastY) < 2) {
+        const currentY = _getScrollTop();
+        if (Math.abs(currentY - lastY) < 2) {
           state.isProgrammaticScroll = false;
         } else {
-          lastY = window.scrollY;
+          lastY = currentY;
           waitScrollEnd();
         }
       }, 100);
@@ -436,7 +443,7 @@ function createScrollSpy(options = {}) {
 
     // 높이는 실제 탭 목록(ul)을 기준으로, 위치는 wrapper를 기준으로 측정
     state.tabBarHeight = dom.tabBar.offsetHeight;
-    state.originalTop = Math.round(elementToMeasure.getBoundingClientRect().top + window.scrollY);
+    state.originalTop = Math.round(_getElementTop(elementToMeasure));
 
     if (wasFixed) elementToMeasure.classList.add(config.classes.fixed);
     document.documentElement.style.setProperty("--tabbar-height", `${state.tabBarHeight}px`);
@@ -444,14 +451,13 @@ function createScrollSpy(options = {}) {
 
   function _measureContainer() {
     if (!dom.container) return;
-    const rect = dom.container.getBoundingClientRect();
-    state.containerTop = rect.top + window.scrollY;
-    state.containerBottom = rect.bottom + window.scrollY;
+    state.containerTop = _getElementTop(dom.container);
+    state.containerBottom = state.containerTop + dom.container.offsetHeight;
   }
 
   function _measureSections() {
     state.sectionBounds = dom.sections.map((section) => {
-      const top = section.getBoundingClientRect().top + window.scrollY;
+      const top = _getElementTop(section);
       return {
         section,
         label: section.dataset.label,
@@ -525,7 +531,7 @@ function createScrollSpy(options = {}) {
   function destroy() {
     if (!state.isMounted) return;
 
-    window.removeEventListener("scroll", refs.onScroll);
+    dom.scrollContext.removeEventListener("scroll", refs.onScroll);
     window.removeEventListener("resize", refs.onResize);
     window.matchMedia("(prefers-reduced-motion: reduce)").removeEventListener("change", refs.onMotionChange);
     if (refs.headerObserver) refs.headerObserver.disconnect();
@@ -567,6 +573,27 @@ function createScrollSpy(options = {}) {
   }
 
   // --- Utility Functions ---
+  function _getScrollTop() {
+    return dom.scrollContext === window ? window.scrollY : dom.scrollContext.scrollTop;
+  }
+
+  function _getElementTop(element) {
+    const scrollTop = _getScrollTop();
+    if (dom.scrollContext === window) {
+      return element.getBoundingClientRect().top + scrollTop;
+    } else {
+      // 스크롤 컨테이너 내부에서는, 뷰포트 기준 좌표에서 컨테이너의 뷰포트 좌표를 빼서 상대 위치를 구해야 합니다.
+      const containerRect = dom.scrollContext.getBoundingClientRect();
+      return element.getBoundingClientRect().top - containerRect.top + scrollTop;
+    }
+  }
+
+  function _scrollTo(position) {
+    const behavior = state.reducedMotion ? "auto" : "smooth";
+    // `scrollTo`는 window와 Element 모두에 존재하는 메서드입니다.
+    dom.scrollContext.scrollTo({ top: position, behavior });
+  }
+
   function _getTabByLabel(label) {
     return dom.tabs.find((tab) => tab.dataset.label === label) || null;
   }
