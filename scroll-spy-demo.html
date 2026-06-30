@@ -254,6 +254,9 @@
               scrollOffset: 0,
               hideTabBarOutsideContainer: false,
               centerActiveTab: true, // 활성 탭을 탭바 중앙으로 자동 스크롤 (기본값: false)
+
+              // --- 접근성 기능 제어 ---
+              useLiveRegion: true, // 스크린 리더를 위한 실시간 안내(Live Region) 사용 여부 (기본값: true)
               tabBarAriaLabel: "페이지 섹션 탐색",
               onTabChange: function (label) {
                 console.log("[ScrollSpy] 활성 탭:", label);

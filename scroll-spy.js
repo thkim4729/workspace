@@ -35,6 +35,7 @@ function createScrollSpy(options = {}) {
     },
     a11y: {
       tabBarLabel: options.tabBarAriaLabel || "섹션 탐색",
+      useLiveRegion: options.useLiveRegion !== undefined ? options.useLiveRegion : true,
     },
     callbacks: {
       onTabChange: options.onTabChange || null,
@@ -250,7 +251,9 @@ function createScrollSpy(options = {}) {
       A11y.attachSection(section, tab);
     });
 
-    dom.liveRegion = A11y.createLiveRegion();
+    if (config.a11y.useLiveRegion) {
+      dom.liveRegion = A11y.createLiveRegion();
+    }
   }
 
   /* ═══════════════════════════════════════════
