@@ -228,11 +228,23 @@
           <script src="scroll-spy.js"></script>
           <script>
             createScrollSpy({
-              scrollContextSelector: ".pop_content", // 스크롤 컨테이너가 window가 아닌 특정 div일 때 사용
-              // headerSelector: '.hero', // 헤더 높이가 유동적일 때 사용 (ResizeObserver로 동적 높이 감지)
+              // --- 팝업 모드 설정 ---
+              // 스크롤 컨테이너가 window가 아닌 '.pop_content' div이므로 선택자를 지정합니다.
+              // 이 옵션을 주석 처리하거나 제거하면 일반 페이지(window 스크롤) 모드로 동작합니다.
+              scrollContextSelector: ".pop_content",
+
+              // 팝업 헤더의 높이를 지정합니다. 탭바가 고정될 때의 top 위치로 사용됩니다.
               headerHeight: 48,
+
+              // --- 일반 페이지 모드 설정 (예시) ---
+              // scrollContextSelector: null, // 또는 주석 처리
+              // headerHeight: 80, // 사이트의 글로벌 헤더 높이
+
+              // headerSelector: '.hero', // 헤더 높이가 유동적일 때 사용 (ResizeObserver로 동적 높이 감지)
               containerSelector: '[data-role="section-container"]',
-              scrollOffset: 0, // .event_detail의 음수 마진(-24px)을 보정하기 위한 값
+              // .event_detail의 margin-top: -24px 때문에 발생하는 스크롤 위치 오차를 보정합니다.
+              // 콘텐츠가 24px만큼 덜 올라오므로, 24px만큼 더 스크롤하도록 설정합니다.
+              scrollOffset: 0,
               hideTabBarOutsideContainer: false,
               centerActiveTab: true, // 활성 탭을 탭바 중앙으로 자동 스크롤 (기본값: false)
               tabBarAriaLabel: "페이지 섹션 탐색",

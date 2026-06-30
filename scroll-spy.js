@@ -58,6 +58,7 @@ function createScrollSpy(options = {}) {
 
   const state = {
     isMounted: false,
+    isCustomContext: false, // 스크롤 컨텍스트가 window인지 여부
     isProgrammaticScroll: false,
     currentActiveTab: null,
     headerHeight: 0,
@@ -169,6 +170,7 @@ function createScrollSpy(options = {}) {
       }
     }
 
+    state.isCustomContext = dom.scrollContext !== window;
     dom.tabBar = document.querySelector(config.selectors.tabBar);
     dom.tabs = Array.from(document.querySelectorAll(config.selectors.tab));
     dom.sections = Array.from(document.querySelectorAll(config.selectors.section));
@@ -314,9 +316,9 @@ function createScrollSpy(options = {}) {
     const scrollTop = _getScrollTop();
     const fixThreshold = config.layout.headerHeight !== null ? config.layout.headerHeight : 0;
 
-    // The scroll position where the tab bar's top edge aligns with the top of the scroll container.
-    // At this point, its visual position aligns with the bottom of the pop_header.
-    const fixTriggerPoint = state.originalTop;
+    // 일반 페이지에서는 헤더 높이를 고려하고, 팝업에서는 컨테이너 상단을 기준으로 합니다.
+    const fixTriggerPoint = state.isCustomContext ? state.originalTop : state.originalTop - fixThreshold;
+
     const shouldFix = scrollTop >= fixTriggerPoint;
 
     // 컨테이너 이탈 시 숨김 로직 (위쪽 이탈 검사는 제외)
@@ -342,8 +344,8 @@ function createScrollSpy(options = {}) {
 
   function _updateActiveSection() {
     const scrollY = _getScrollTop();
-    // 팝업 구조에서는 외부 헤더(headerHeight)가 스크롤 컨텍스트 내의 위치 계산에 영향을 주지 않습니다.
-    const threshold = scrollY + state.tabBarHeight + config.layout.scrollOffset;
+    const headerOffset = state.isCustomContext ? 0 : state.headerHeight;
+    const threshold = scrollY + headerOffset + state.tabBarHeight + config.layout.scrollOffset;
     let activeBound = null;
 
     // 캐싱된 Bounds를 기반으로 활성 섹션 탐색 (순차 탐색)
@@ -411,8 +413,8 @@ function createScrollSpy(options = {}) {
   }
 
   function _scrollToSection(section) {
-    // 팝업 구조에서는 외부 헤더(headerHeight)가 스크롤 컨텍스트 내의 위치 계산에 영향을 주지 않습니다.
-    const top = _getElementTop(section) - state.tabBarHeight - config.layout.scrollOffset;
+    const headerOffset = state.isCustomContext ? 0 : state.headerHeight;
+    const top = _getElementTop(section) - headerOffset - state.tabBarHeight - config.layout.scrollOffset;
 
     state.isProgrammaticScroll = true;
     clearTimeout(refs.scrollEndTimer);
