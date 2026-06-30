@@ -7,241 +7,242 @@
     <link rel="stylesheet" href="scroll-spy.css" />
   </head>
   <body>
-    <header class="hero">
-      <h1>ScrollSpy 데모</h1>
-      <p>탭을 누르거나 스크롤해 보세요</p>
-    </header>
+    <div class="popup">
+      <div class="C_popup">
+        <header class="pop_header">
+          <h1>ScrollSpy 데모</h1>
+          <p>탭을 누르거나 스크롤해 보세요</p>
+        </header>
 
-    <div
-      style="
-        min-height: 70vh;
-        padding: 60px 20px;
-        background-color: #edf2f7;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-      "
-    >
-      <h2 style="font-size: 22px; font-weight: 600; margin-bottom: 16px; color: #2d3748">상단 더미 콘텐츠</h2>
-      <p style="font-size: 16px; color: #4a5568; line-height: 1.7">
-        이 영역은 Scroll-Spy와 무관한 콘텐츠입니다.<br />스크롤을 시작하면 '소개' 섹션부터 탭이 활성화됩니다.
-      </p>
-    </div>
-
-    <div class="tabbar-wrapper">
-      <ul data-role="tabbar">
-        <li><button data-role="tab" data-label="intro">소개</button></li>
-        <li><button data-role="tab" data-label="features">기능</button></li>
-        <li><button data-role="tab" data-label="menu">메뉴</button></li>
-        <li><button data-role="tab" data-label="gallery">갤러리</button></li>
-        <li><button data-role="tab" data-label="review">리뷰</button></li>
-        <li><button data-role="tab" data-label="contact">문의</button></li>
-      </ul>
-    </div>
-    <div class="tabbar-placeholder" aria-hidden="true"></div>
-
-    <div data-role="section-container">
-      <section data-role="section" data-label="intro" style="min-height: 80vh">
-        <span class="s-badge">INTRO</span>
-        <h2 class="s-title">안녕하세요</h2>
-        <p class="s-body">
-          기본 마크업은 HTML이 담당하고, <code>data-*</code>·<code>aria-*</code> 속성은 JS가 동적으로 주입합니다.
-        </p>
-        <p class="s-body" style="margin-top: 12px">
-          접근성 함수는 <strong>A11Y 블록</strong>(<code>_a11y_*</code>)으로 분리 관리됩니다.
-        </p>
-      </section>
-
-      <section data-role="section" data-label="features" style="min-height: 80vh">
-        <span class="s-badge">FEATURES</span>
-        <h2 class="s-title">주요 기능</h2>
-        <p class="s-body">함수형 패턴, 단일 scroll 기준, 깜빡임 없는 탭 전환.</p>
-        <div class="card-grid">
-          <div class="card">
-            <div class="card-icon">🔗</div>
-            <div class="card-name">data 속성 연결</div>
-            <div class="card-desc">id 없이 data-label로 탭·섹션 매핑</div>
+        <div class="pop_content">
+          <div style="" class="event_top">
+            <h2 style="font-size: 22px; font-weight: 600; margin-bottom: 16px; color: #2d3748">상단 더미 콘텐츠</h2>
+            <p style="font-size: 16px; color: #4a5568; line-height: 1.7">
+              이 영역은 Scroll-Spy와 무관한 콘텐츠입니다.<br />스크롤을 시작하면 '소개' 섹션부터 탭이 활성화됩니다.
+            </p>
           </div>
-          <div class="card">
-            <div class="card-icon">📌</div>
-            <div class="card-name">Fixed 탭바</div>
-            <div class="card-desc">뷰포트 최상단 도달 시 고정</div>
-          </div>
-          <div class="card">
-            <div class="card-icon">♿</div>
-            <div class="card-name">웹 접근성</div>
-            <div class="card-desc">_a11y_* 함수 블록으로 분리</div>
-          </div>
-          <div class="card">
-            <div class="card-icon">⚡</div>
-            <div class="card-name">깜빡임 없음</div>
-            <div class="card-desc">scroll 종료 감지로 플래그 해제</div>
-          </div>
-        </div>
-      </section>
 
-      <section data-role="section" data-label="menu" style="min-height: 80vh">
-        <span class="s-badge">MENU</span>
-        <h2 class="s-title">메뉴</h2>
-        <p class="s-body">오늘의 추천 메뉴를 확인해 보세요.</p>
-        <div class="menu-list">
-          <div class="card menu-item">
-            <div class="menu-emoji">☕</div>
-            <div>
-              <div class="card-name" style="font-size: 15px">아메리카노</div>
-              <div class="card-desc">에스프레소와 물의 완벽한 조화 · 4,500원</div>
+          <div class="event_detail">
+            <div class="tabbar-wrapper">
+              <ul data-role="tabbar">
+                <li><button data-role="tab" data-label="intro">소개</button></li>
+                <li><button data-role="tab" data-label="features">기능</button></li>
+                <li><button data-role="tab" data-label="menu">메뉴</button></li>
+                <li><button data-role="tab" data-label="gallery">갤러리</button></li>
+                <li><button data-role="tab" data-label="review">리뷰</button></li>
+                <li><button data-role="tab" data-label="contact">문의</button></li>
+              </ul>
+            </div>
+
+            <div data-role="section-container">
+              <section data-role="section" data-label="intro" style="min-height: 80vh">
+                <span class="s-badge">INTRO</span>
+                <h2 class="s-title">안녕하세요</h2>
+                <p class="s-body">
+                  기본 마크업은 HTML이 담당하고, <code>data-*</code>·<code>aria-*</code> 속성은 JS가 동적으로
+                  주입합니다.
+                </p>
+                <p class="s-body" style="margin-top: 12px">
+                  접근성 함수는 <strong>A11Y 블록</strong>(<code>_a11y_*</code>)으로 분리 관리됩니다.
+                </p>
+              </section>
+
+              <section data-role="section" data-label="features" style="min-height: 80vh">
+                <span class="s-badge">FEATURES</span>
+                <h2 class="s-title">주요 기능</h2>
+                <p class="s-body">함수형 패턴, 단일 scroll 기준, 깜빡임 없는 탭 전환.</p>
+                <div class="card-grid">
+                  <div class="card">
+                    <div class="card-icon">🔗</div>
+                    <div class="card-name">data 속성 연결</div>
+                    <div class="card-desc">id 없이 data-label로 탭·섹션 매핑</div>
+                  </div>
+                  <div class="card">
+                    <div class="card-icon">📌</div>
+                    <div class="card-name">Fixed 탭바</div>
+                    <div class="card-desc">뷰포트 최상단 도달 시 고정</div>
+                  </div>
+                  <div class="card">
+                    <div class="card-icon">♿</div>
+                    <div class="card-name">웹 접근성</div>
+                    <div class="card-desc">_a11y_* 함수 블록으로 분리</div>
+                  </div>
+                  <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <div class="card-name">깜빡임 없음</div>
+                    <div class="card-desc">scroll 종료 감지로 플래그 해제</div>
+                  </div>
+                </div>
+              </section>
+
+              <section data-role="section" data-label="menu" style="min-height: 80vh">
+                <span class="s-badge">MENU</span>
+                <h2 class="s-title">메뉴</h2>
+                <p class="s-body">오늘의 추천 메뉴를 확인해 보세요.</p>
+                <div class="menu-list">
+                  <div class="card menu-item">
+                    <div class="menu-emoji">☕</div>
+                    <div>
+                      <div class="card-name" style="font-size: 15px">아메리카노</div>
+                      <div class="card-desc">에스프레소와 물의 완벽한 조화 · 4,500원</div>
+                    </div>
+                  </div>
+                  <div class="card menu-item">
+                    <div class="menu-emoji">🍵</div>
+                    <div>
+                      <div class="card-name" style="font-size: 15px">말차 라떼</div>
+                      <div class="card-desc">국내산 말차와 부드러운 우유 · 6,000원</div>
+                    </div>
+                  </div>
+                  <div class="card menu-item">
+                    <div class="menu-emoji">🧁</div>
+                    <div>
+                      <div class="card-name" style="font-size: 15px">크림 케이크</div>
+                      <div class="card-desc">매일 직접 만드는 홈메이드 케이크 · 7,500원</div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section data-role="section" data-label="gallery" style="min-height: 80vh">
+                <span class="s-badge">GALLERY</span>
+                <h2 class="s-title">갤러리</h2>
+                <p class="s-body">공간의 분위기를 사진으로 만나보세요.</p>
+                <div class="card-grid" style="margin-top: 16px">
+                  <div
+                    class="card"
+                    style="
+                      aspect-ratio: 1;
+                      background: #ede9fe;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 36px;
+                    "
+                  >
+                    🏠
+                  </div>
+                  <div
+                    class="card"
+                    style="
+                      aspect-ratio: 1;
+                      background: #fce7f3;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 36px;
+                    "
+                  >
+                    🌿
+                  </div>
+                  <div
+                    class="card"
+                    style="
+                      aspect-ratio: 1;
+                      background: #ecfdf5;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 36px;
+                    "
+                  >
+                    🪴
+                  </div>
+                  <div
+                    class="card"
+                    style="
+                      aspect-ratio: 1;
+                      background: #fef3c7;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 36px;
+                    "
+                  >
+                    ☀️
+                  </div>
+                </div>
+              </section>
+
+              <section data-role="section" data-label="review" style="min-height: 80vh">
+                <span class="s-badge">REVIEW</span>
+                <h2 class="s-title">손님 리뷰</h2>
+                <p class="s-body">다녀가신 분들의 이야기입니다.</p>
+                <div class="review-item">
+                  <div class="review-meta">
+                    <span class="review-author">김지현</span><span class="review-stars">★★★★★</span>
+                  </div>
+                  <p class="review-text">탭 클릭하면 해당 섹션으로 바로 이동해서 편리해요.</p>
+                </div>
+                <div class="review-item">
+                  <div class="review-meta">
+                    <span class="review-author">박민준</span><span class="review-stars">★★★★☆</span>
+                  </div>
+                  <p class="review-text">스크린 리더에서도 섹션 이름을 정확히 읽어줘서 좋아요.</p>
+                </div>
+              </section>
+
+              <section data-role="section" data-label="contact" style="min-height: 120px; padding-bottom: 40px">
+                <span class="s-badge">CONTACT</span>
+                <h2 class="s-title">문의</h2>
+                <p class="s-body">궁금한 점이 있으시면 언제든지 연락주세요.</p>
+                <div class="card" style="margin-top: 16px">
+                  <p style="font-size: 14px; color: #555; line-height: 1.8">
+                    📍 서울시 마포구 와우산로 12<br />📞 02-1234-5678<br />✉️ hello@example.com<br />🕐 매일 09:00 –
+                    21:00
+                  </p>
+                </div>
+              </section>
             </div>
           </div>
-          <div class="card menu-item">
-            <div class="menu-emoji">🍵</div>
+
+          <footer
+            style="margin-top: 60px; padding: 50px 20px; background-color: #2d3748; color: #e2e8f0; text-align: center"
+          >
+            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 12px">탭바와 무관한 콘텐츠 영역</h3>
+            <p style="font-size: 15px; color: #a0aec0; line-height: 1.7">
+              이 부분은 Scroll-Spy 기능에 포함되지 않는 더미 콘텐츠입니다.<br />페이지의 다른 구성 요소와 어떻게
+              통합되는지 보여주기 위한 예시입니다.
+            </p>
+          </footer>
+
+          <div
+            style="
+              height: 100vh;
+              background-color: #1a202c;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: white;
+              text-align: center;
+            "
+          >
             <div>
-              <div class="card-name" style="font-size: 15px">말차 라떼</div>
-              <div class="card-desc">국내산 말차와 부드러운 우유 · 6,000원</div>
+              <h2 style="font-size: 24px; font-weight: bold">추가 테스트 영역</h2>
+              <p style="margin-top: 10px; color: #a0aec0">
+                이 영역으로 스크롤하면 '문의' 탭이 비활성화되며, 탭바가 뷰포트에서 사라져야 합니다.
+              </p>
             </div>
           </div>
-          <div class="card menu-item">
-            <div class="menu-emoji">🧁</div>
-            <div>
-              <div class="card-name" style="font-size: 15px">크림 케이크</div>
-              <div class="card-desc">매일 직접 만드는 홈메이드 케이크 · 7,500원</div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      <section data-role="section" data-label="gallery" style="min-height: 80vh">
-        <span class="s-badge">GALLERY</span>
-        <h2 class="s-title">갤러리</h2>
-        <p class="s-body">공간의 분위기를 사진으로 만나보세요.</p>
-        <div class="card-grid" style="margin-top: 16px">
-          <div
-            class="card"
-            style="
-              aspect-ratio: 1;
-              background: #ede9fe;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 36px;
-            "
-          >
-            🏠
-          </div>
-          <div
-            class="card"
-            style="
-              aspect-ratio: 1;
-              background: #fce7f3;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 36px;
-            "
-          >
-            🌿
-          </div>
-          <div
-            class="card"
-            style="
-              aspect-ratio: 1;
-              background: #ecfdf5;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 36px;
-            "
-          >
-            🪴
-          </div>
-          <div
-            class="card"
-            style="
-              aspect-ratio: 1;
-              background: #fef3c7;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 36px;
-            "
-          >
-            ☀️
-          </div>
+          <script src="scroll-spy.js"></script>
+          <script>
+            createScrollSpy({
+              scrollContextSelector: ".pop_content", // 스크롤 컨테이너가 window가 아닌 특정 div일 때 사용
+              // headerSelector: '.hero', // 헤더 높이가 유동적일 때 사용 (ResizeObserver로 동적 높이 감지)
+              headerHeight: 48,
+              containerSelector: '[data-role="section-container"]',
+              scrollOffset: 0, // .event_detail의 음수 마진(-24px)을 보정하기 위한 값
+              hideTabBarOutsideContainer: false,
+              centerActiveTab: true, // 활성 탭을 탭바 중앙으로 자동 스크롤 (기본값: false)
+              tabBarAriaLabel: "페이지 섹션 탐색",
+              onTabChange: function (label) {
+                console.log("[ScrollSpy] 활성 탭:", label);
+              },
+            }).init();
+          </script>
         </div>
-      </section>
-
-      <section data-role="section" data-label="review" style="min-height: 80vh">
-        <span class="s-badge">REVIEW</span>
-        <h2 class="s-title">손님 리뷰</h2>
-        <p class="s-body">다녀가신 분들의 이야기입니다.</p>
-        <div class="review-item">
-          <div class="review-meta">
-            <span class="review-author">김지현</span><span class="review-stars">★★★★★</span>
-          </div>
-          <p class="review-text">탭 클릭하면 해당 섹션으로 바로 이동해서 편리해요.</p>
-        </div>
-        <div class="review-item">
-          <div class="review-meta">
-            <span class="review-author">박민준</span><span class="review-stars">★★★★☆</span>
-          </div>
-          <p class="review-text">스크린 리더에서도 섹션 이름을 정확히 읽어줘서 좋아요.</p>
-        </div>
-      </section>
-
-      <section data-role="section" data-label="contact" style="min-height: 120px; padding-bottom: 40px">
-        <span class="s-badge">CONTACT</span>
-        <h2 class="s-title">문의</h2>
-        <p class="s-body">궁금한 점이 있으시면 언제든지 연락주세요.</p>
-        <div class="card" style="margin-top: 16px">
-          <p style="font-size: 14px; color: #555; line-height: 1.8">
-            📍 서울시 마포구 와우산로 12<br />📞 02-1234-5678<br />✉️ hello@example.com<br />🕐 매일 09:00 – 21:00
-          </p>
-        </div>
-      </section>
-    </div>
-
-    <footer style="margin-top: 60px; padding: 50px 20px; background-color: #2d3748; color: #e2e8f0; text-align: center">
-      <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 12px">탭바와 무관한 콘텐츠 영역</h3>
-      <p style="font-size: 15px; color: #a0aec0; line-height: 1.7">
-        이 부분은 Scroll-Spy 기능에 포함되지 않는 더미 콘텐츠입니다.<br />페이지의 다른 구성 요소와 어떻게 통합되는지
-        보여주기 위한 예시입니다.
-      </p>
-    </footer>
-
-    <div
-      style="
-        height: 100vh;
-        background-color: #1a202c;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        text-align: center;
-      "
-    >
-      <div>
-        <h2 style="font-size: 24px; font-weight: bold">추가 테스트 영역</h2>
-        <p style="margin-top: 10px; color: #a0aec0">
-          이 영역으로 스크롤하면 '문의' 탭이 비활성화되며, 탭바가 뷰포트에서 사라져야 합니다.
-        </p>
       </div>
     </div>
-
-    <script src="scroll-spy.js"></script>
-    <script>
-      createScrollSpy({
-        // scrollContextSelector: '.my-scrollable-div', // 스크롤 컨테이너가 window가 아닌 특정 div일 때 사용
-        // headerSelector: '.hero', // 헤더 높이가 유동적일 때 사용 (ResizeObserver로 동적 높이 감지)
-        headerHeight: 48,
-        containerSelector: '[data-role="section-container"]',
-        hideTabBarOutsideContainer: false,
-        centerActiveTab: true, // 활성 탭을 탭바 중앙으로 자동 스크롤 (기본값: false)
-        tabBarAriaLabel: "페이지 섹션 탐색",
-        onTabChange: function (label) {
-          console.log("[ScrollSpy] 활성 탭:", label);
-        },
-      }).init();
-    </script>
   </body>
 </html>

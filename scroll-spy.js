@@ -53,6 +53,7 @@ function createScrollSpy(options = {}) {
     tabs: [],
     sections: [],
     liveRegion: null,
+    placeholder: null,
   };
 
   const state = {
@@ -197,6 +198,7 @@ function createScrollSpy(options = {}) {
       dom.tabBarWrapper = dom.tabBar.parentElement;
     }
 
+    _createPlaceholder();
     _setupDataAndA11y();
     _bindEvents();
 
@@ -204,6 +206,17 @@ function createScrollSpy(options = {}) {
     handleScroll(); // 초기 진입 시 고정 여부 및 활성 탭 판단
 
     state.isMounted = true;
+  }
+
+  function _createPlaceholder() {
+    const placeholder = document.createElement("div");
+    placeholder.className = "tabbar-placeholder";
+    placeholder.setAttribute("aria-hidden", "true");
+
+    const targetElement = dom.tabBarWrapper || dom.tabBar;
+    targetElement.insertAdjacentElement("afterend", placeholder);
+
+    dom.placeholder = placeholder;
   }
 
   function _setupDataAndA11y() {
@@ -294,30 +307,33 @@ function createScrollSpy(options = {}) {
   }
 
   function _updateFixedState() {
-    if (state.originalTop === null) return;
-
-    const scrollY = _getScrollTop();
-    const fixThreshold = state.originalTop - state.headerHeight;
-    const shouldFix = scrollY >= fixThreshold;
+    if (state.originalTop === null) return; // Guard clause: Don't run if not measured yet
 
     const elementToManage = dom.tabBarWrapper || dom.tabBar;
+    const isFixed = elementToManage.classList.contains(config.classes.fixed);
+    const scrollTop = _getScrollTop();
+    const fixThreshold = config.layout.headerHeight !== null ? config.layout.headerHeight : 0;
+
+    // The scroll position where the tab bar's top edge aligns with the top of the scroll container.
+    // At this point, its visual position aligns with the bottom of the pop_header.
+    const fixTriggerPoint = state.originalTop;
+    const shouldFix = scrollTop >= fixTriggerPoint;
 
     // 컨테이너 이탈 시 숨김 로직 (위쪽 이탈 검사는 제외)
     if (config.behavior.hideOutside && dom.container) {
       const boundaryBottom = state.containerBottom - state.headerHeight - state.tabBarHeight;
-      if (shouldFix && scrollY > boundaryBottom) {
+      if (shouldFix && scrollTop > boundaryBottom) {
         elementToManage.classList.add(config.classes.hidden);
       } else {
         elementToManage.classList.remove(config.classes.hidden);
       }
     }
 
-    const isFixed = elementToManage.classList.contains(config.classes.fixed);
     if (shouldFix === isFixed) return;
 
     if (shouldFix) {
       elementToManage.classList.add(config.classes.fixed);
-      elementToManage.style.top = `${state.headerHeight}px`;
+      elementToManage.style.top = `${fixThreshold}px`;
     } else {
       elementToManage.classList.remove(config.classes.fixed);
       elementToManage.style.top = "";
@@ -326,7 +342,8 @@ function createScrollSpy(options = {}) {
 
   function _updateActiveSection() {
     const scrollY = _getScrollTop();
-    const threshold = scrollY + state.headerHeight + state.tabBarHeight + config.layout.scrollOffset;
+    // 팝업 구조에서는 외부 헤더(headerHeight)가 스크롤 컨텍스트 내의 위치 계산에 영향을 주지 않습니다.
+    const threshold = scrollY + state.tabBarHeight + config.layout.scrollOffset;
     let activeBound = null;
 
     // 캐싱된 Bounds를 기반으로 활성 섹션 탐색 (순차 탐색)
@@ -394,7 +411,8 @@ function createScrollSpy(options = {}) {
   }
 
   function _scrollToSection(section) {
-    const top = _getElementTop(section) - state.headerHeight - state.tabBarHeight - config.layout.scrollOffset;
+    // 팝업 구조에서는 외부 헤더(headerHeight)가 스크롤 컨텍스트 내의 위치 계산에 영향을 주지 않습니다.
+    const top = _getElementTop(section) - state.tabBarHeight - config.layout.scrollOffset;
 
     state.isProgrammaticScroll = true;
     clearTimeout(refs.scrollEndTimer);
@@ -559,6 +577,10 @@ function createScrollSpy(options = {}) {
 
     if (dom.liveRegion && dom.liveRegion.parentNode) {
       dom.liveRegion.parentNode.removeChild(dom.liveRegion);
+    }
+
+    if (dom.placeholder && dom.placeholder.parentNode) {
+      dom.placeholder.parentNode.removeChild(dom.placeholder);
     }
 
     const elementToManage = dom.tabBarWrapper || dom.tabBar;

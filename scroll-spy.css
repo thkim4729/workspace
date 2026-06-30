@@ -11,7 +11,26 @@ body {
   color: #1a1a1a;
 }
 
-.hero {
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.C_popup {
+  width: 100%;
+  height: 100%;
+}
+
+.pop_header {
+  padding: 16px 40px;
+  height: 48px;
+  position: relative;
   height: 48px;
   padding: 0 20px;
   background: #fff;
@@ -20,16 +39,36 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  position: sticky;
-  top: 0;
-  z-index: 101;
 }
-.hero h1 {
+
+.pop_content {
+  padding: 24px 20px 120px 20px;
+  max-height: 100%;
+  height: calc(100% - 48px);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.event_top {
+  padding-bottom: 49px;
+  background-color: #edf2f7;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.event_detail {
+  margin: -24px -20px 0 -20px;
+}
+
+.pop_header h1 {
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 2px;
 }
-.hero p {
+.pop_header p {
   font-size: 12px;
   color: #666;
 }
