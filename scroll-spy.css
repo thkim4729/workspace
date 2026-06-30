@@ -50,17 +50,35 @@ body {
 }
 
 .event_top {
-  padding-bottom: 49px;
-  background-color: #edf2f7;
+  padding: 24px 0 40px;
+  margin-bottom: 40px;
+  border-bottom: 1px solid #e2e8f0; /* 연한 회색 구분선 */
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+}
+
+.event_top h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #2d3748;
+}
+
+.event_top p {
+  font-size: 15px;
+  color: #555;
+  line-height: 1.7;
 }
 
 .event_detail {
-  margin: -24px -20px 0 -20px;
+  /* 이전 요청에 대한 오해로 제거했던 상단 음수 마진을 복원합니다. */
+  margin: -24px -20px 0;
+}
+
+.event_detail > .event_img {
+  min-height: 50vh;
+  /* section과 유사한 디자인을 위해 배경색과 패딩을 추가합니다. */
+  background-color: #fafafa;
+  padding: 28px 20px;
 }
 
 .pop_header h1 {
